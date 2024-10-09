@@ -1,0 +1,78 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Side panel for draggable items */
+.side-panel {
+    width: 20%;
+    background-color: #f4f4f4;
+    padding: 20px;
+    box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
+}
+
+.draggable {
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #ddd;
+    cursor: grab;
+    text-align: center;
+    
+}
+
+.draggable:active {
+    cursor: grabbing;
+}
+
+.tree-area {
+    width: 80%;
+    background-color: #ffffff;
+    position: relative;
+    padding: 20px;
+    border: 1px solid #ccc;
+    overflow: auto;
+}
+
+.tree-area h3 {
+    text-align: center;
+    color: #333;
+}
+
+.node-in-tree {
+    display: inline-block;
+    padding: 10px;
+    margin: 10px;
+    background-color: lightblue;
+    border-radius: 50%;
+    position: absolute;
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transition */
+    z-index: 1;
+}
+
+.line-in-tree {
+    height: 2px;
+    background-color: black;
+    position: absolute;
+    transform-origin: 0 50%; /* Ensure the line rotates from one end */
+}
+
+.node-in-tree:hover {
+    background-color: rgb(31, 68, 81); /* Change the background color */
+    transform: scale(1.2); /* Slightly enlarge the node on hover */
+}
+
+.val-in-line {
+    color: black;
+    background-color: white;
+    padding: 2px 5px;
+    border: 1px solid black;
+    border-radius: 5px;
+    font-size: 12px;
+    text-align: center;
+    pointer-events: none;  /* Prevent interaction with the number */
+}
+
