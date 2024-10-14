@@ -2,6 +2,8 @@ const treeArea = document.getElementById("tree-area");
 
 let draggedItem = null;
 let selectedNodes = [];  // To store the two nodes to connect with a line
+let connections = [];    // Store connections (nodes and lines)
+let lines = []; // Store line objects to update their positions
 
 // Add event listeners to all draggable items
 document.querySelectorAll(".draggable").forEach(item => {
@@ -39,11 +41,11 @@ function handleDrop(e) {
         const itemType = draggedItem.getAttribute("data-type");
 
         if (itemType === "node") {
-            let value = prompt("Enter name of this node")
+            let value = prompt("Enter name of this node");
             draggedItem.setAttribute("data-value", value);
             const nodeValue = value;
             createNode(dropX, dropY, nodeValue);
-        } 
+        }
     }
 }
 
@@ -53,14 +55,13 @@ function createNode(x, y, value) {
     newNode.classList.add("node-in-tree");
     newNode.style.left = `${x}px`;
     newNode.style.top = `${y}px`;
-    
-    newNode.textContent = value;
 
+    newNode.textContent = value;
 
     treeArea.appendChild(newNode);
 
     // Add click event listener to select nodes for line connection
-    newNode.addEventListener("click", () => handleNodeClick(newNode));
+    newNode.addEventListener("click", (e) => handleNodeClick(newNode, e));
 
     // Make the node draggable within the tree area to reposition
     newNode.addEventListener("mousedown", function (e) {
@@ -71,6 +72,7 @@ function createNode(x, y, value) {
         function moveNode(e) {
             node.style.left = `${e.clientX - treeArea.offsetLeft - offsetX}px`;
             node.style.top = `${e.clientY - treeArea.offsetTop - offsetY}px`;
+            updateLines(node);  // Update the lines when the node is moved
         }
 
         function stopMovingNode() {
@@ -85,18 +87,40 @@ function createNode(x, y, value) {
 
 // Handle clicks on nodes to select two for line creation
 function handleNodeClick(node) {
-    // Add the node to the selectedNodes array
+    // Avoid selecting the same node multiple times or connected nodes
+    if (selectedNodes.includes(node)) {
+        return;
+    }
+
     selectedNodes.push(node);
 
-    // If we have two nodes, we create a line between them
+    // If two nodes are selected, create a line between them
     if (selectedNodes.length === 2) {
         createLineBetweenNodes(selectedNodes[0], selectedNodes[1]);
-        selectedNodes = [];  // Reset the array for next line
+        selectedNodes = [];  // Reset the array for the next line
     }
 }
 
-// Create a line between two nodes
+// Check if a line already exists between two nodes
+function lineExists(node1, node2) {
+    return connections.some(({ node1: n1, node2: n2 }) => 
+        (n1 === node1 && n2 === node2) || (n1 === node2 && n2 === node1)
+    );
+}
+
+// Check if a node is already part of an existing line
+function isNodePartOfExistingLine(node) {
+    return connections.some(({ node1, node2 }) => node1 === node || node2 === node);
+}
+
+// Function to create a line between two nodes
 function createLineBetweenNodes(node1, node2) {
+    // Check if the nodes are already connected
+    if (isNodesConnected(node1, node2)) {
+        alert('Nodes are already connected!');
+        return;  // If connected, do nothing
+    }
+
     const line = document.createElement("div");
     line.classList.add("line-in-tree");
 
@@ -114,48 +138,69 @@ function createLineBetweenNodes(node1, node2) {
     const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
     const angle = Math.atan2(y2 - y1, x2 - x1) * (180 / Math.PI);
 
-    // Position and style the line
+    // Style the line
     line.style.width = `${length}px`;
     line.style.transform = `rotate(${angle}deg)`;
     line.style.left = `${x1}px`;
     line.style.top = `${y1}px`;
-    line.style.zIndex = 0; 
+
     treeArea.appendChild(line);
 
-//line parameter
+    // Prompt for line parameter only if creating a new line
     const parameter = document.createElement("div");
-parameter.classList.add("val-in-line");
+    parameter.classList.add("val-in-line");
 
-let val = prompt("Parameter of line");
-parameter.innerText = `${val}`;
+    let val = prompt("Parameter of line");
+    parameter.innerText = `${val}`;
+    parameter.style.position = 'absolute';
+    parameter.style.width = 'auto';
+    parameter.style.whiteSpace = 'nowrap';
 
-// Calculate midpoint of the line
-const midX = (x1 + x2) / 2;
-const midY = (y1 + y2) / 2;
+    const midX = (x1 + x2) / 2;
+    const midY = (y1 + y2) / 2;
+    parameter.style.left = `${midX}px`;
+    parameter.style.top = `${midY - 20}px`;  // Adjust to place it above the line
+    treeArea.appendChild(parameter);
 
-// Style the parameter div
-parameter.style.position = 'absolute';  // Make sure it's absolutely positioned
-parameter.style.transform = `rotate(${angle}deg)`;
-
-// Set the width of the parameter div (optional, depending on how you want to style it)
-parameter.style.width = 'auto';
-parameter.style.whiteSpace = 'nowrap';  // Ensure it doesn't wrap
-
-// Adjust position to center the number on the line
-parameter.style.left = `${midX}px`;
-parameter.style.top = `${midY - 20}px`;  // Offset upwards to ensure it appears above the line
-parameter.style.zIndex = 1; 
-
-// Optionally adjust based on line direction (to make sure the text stays above the line)
-if (angle < 0) {
-    parameter.style.top = `${midY - 20}px`;  // Keep it above if line is slanted negatively
-} else {
-    parameter.style.top = `${midY - 30}px`;  // Keep it a bit higher if line is positively slanted
+    // Track the connection between the nodes
+    connections.push({ node1, node2, line });
+    lines.push({ line, parameter, node1, node2 });  // Store for updating later
 }
 
-// Append the parameter div to the tree area
-treeArea.appendChild(parameter);
+function isNodesConnected(node1, node2) {
+    return connections.some(connection =>
+        (connection.node1 === node1 && connection.node2 === node2) ||
+        (connection.node1 === node2 && connection.node2 === node1)
+    );
+}
 
-    
+// Update lines when nodes are moved
+function updateLines(movedNode) {
+    lines.forEach(({ line, parameter, node1, node2 }) => {
+        if (node1 === movedNode || node2 === movedNode) {
+            const node1Rect = node1.getBoundingClientRect();
+            const node2Rect = node2.getBoundingClientRect();
 
+            const x1 = node1Rect.left + node1Rect.width / 2 - treeArea.offsetLeft;
+            const y1 = node1Rect.top + node1Rect.height / 2 - treeArea.offsetTop;
+            const x2 = node2Rect.left + node2Rect.width / 2 - treeArea.offsetLeft;
+            const y2 = node2Rect.top + node2Rect.height / 2 - treeArea.offsetTop;
+
+            // Calculate the length and angle of the line
+            const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+            const angle = Math.atan2(y2 - y1, x2 - x1) * (180 / Math.PI);
+
+            // Update line position and dimensions
+            line.style.width = `${length}px`;
+            line.style.transform = `rotate(${angle}deg)`;
+            line.style.left = `${x1}px`;
+            line.style.top = `${y1}px`;
+
+            // Update parameter position
+            const midX = (x1 + x2) / 2;
+            const midY = (y1 + y2) / 2;
+            parameter.style.left = `${midX}px`;
+            parameter.style.top = `${midY - 20}px`;  // Keep it above the line
+        }
+    });
 }
