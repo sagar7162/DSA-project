@@ -11,14 +11,25 @@
         <!-- Side panel for draggable items -->
         <div class="side-panel">
             <h3>Items to Drag</h3>
-            
-            <div class="draggable node" draggable="true" data-type="node" data-value="x">Node </div>
-            <!-- <button class="selectable line button" draggable="false" data-type="line">Line</button> -->
+            <button class="draggable node" draggable="true" data-type="node" data-value="x">Node </button>
         </div>
         
         <!-- Main area for tree construction -->
         <div class="tree-area" id="tree-area">
             <h3>Constructed Tree</h3>
+        </div>
+
+        <!-- New Section for Transmitter/Receiver and Pathfinding -->
+        <div class="controls">
+            <h3>Set Transmitter and Receiver</h3>
+            <label for="transmitter">Transmitter:</label>
+            <input type="text" id="transmitter" placeholder="Enter transmitter node">
+            <br>
+            <label for="receiver">Receiver:</label>
+            <input type="text" id="receiver" placeholder="Enter receiver node">
+            <br>
+            <button id="find-path-btn">Find Shortest Path</button>
+            <div id="path-result"></div>
         </div>
     </div>
 

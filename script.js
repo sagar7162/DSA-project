@@ -4,6 +4,7 @@ let draggedItem = null;
 let selectedNodes = [];  // To store the two nodes to connect with a line
 let connections = []; // Store all node connections (nodes and their lines)
 let lines = []; // Store all lines to update positions when nodes move
+let nodesInTree = []; // Store the names of all nodes created in the tree
 
 // Add event listeners to all draggable items
 document.querySelectorAll(".draggable").forEach(item => {
@@ -45,7 +46,49 @@ function handleDrop(e) {
             draggedItem.setAttribute("data-value", value);
             const nodeValue = value;
             createNode(dropX, dropY, nodeValue);
+            nodesInTree.push(nodeValue);  // Store node name in nodesInTree array
         }
+    }
+}
+
+let lastClickTime = 0; // To track the timing of clicks for double-click detection
+
+// Function to change the value of a node
+function editNodeValue(node) {
+    const currentValue = node.getAttribute("data-value");
+    const newValue = prompt("Enter new value for this node", currentValue);
+    if (newValue !== null && newValue.trim() !== "") {
+        node.setAttribute("data-value", newValue);
+        node.textContent = newValue; // Update the displayed value
+        updateLines(node); // Update lines to ensure correct positioning
+    }
+}
+
+// Function to change the parameter of a line
+function editLineParameter(lineData) {
+    const currentParameter = lineData.parameterLabel.innerText;
+    const newParameter = prompt("Enter new parameter for this line", currentParameter);
+    if (newParameter !== null && newParameter.trim() !== "") {
+        lineData.parameterLabel.innerText = newParameter; // Update the displayed parameter
+    }
+}
+
+// Function to handle double-click for deleting a node
+function handleNodeDoubleClick(node) {
+    const confirmed = confirm("Are you sure you want to delete this node?");
+    if (confirmed) {
+        // Remove the node
+        node.remove();
+        // Remove associated lines
+        lines = lines.filter(lineData => {
+            const isConnected = lineData.node1 === node || lineData.node2 === node;
+            if (isConnected) {
+                lineData.line.remove(); // Remove line from the DOM
+                lineData.parameterLabel.remove(); // Remove parameter label from the DOM
+            }
+            return !isConnected; // Keep lines not connected to the deleted node
+        });
+        connections = connections.filter(connection => connection.node1 !== node && connection.node2 !== node);
     }
 }
 
@@ -55,7 +98,6 @@ function createNode(x, y, value) {
     newNode.classList.add("node-in-tree");
     newNode.style.left = `${x}px`;
     newNode.style.top = `${y}px`;
-
     newNode.textContent = value;
 
     treeArea.appendChild(newNode);
@@ -93,29 +135,22 @@ function createNode(x, y, value) {
 
 // Handle clicks on nodes to select two for line creation
 function handleNodeClick(node) {
-    // Avoid selecting the same node multiple times or connected nodes
-    if (selectedNodes.includes(node)) {
-        return;
-    }
+    if (selectedNodes.includes(node)) return;
 
     selectedNodes.push(node);
 
-    // If two nodes are selected, create a line between them
     if (selectedNodes.length === 2) {
         const node1 = selectedNodes[0];
         const node2 = selectedNodes[1];
 
-        // Prompt for line parameter
-        let parameter = prompt("Parameter of line");
-
-        // If user cancels the prompt or enters an empty value, don't create a line
+        let parameter = prompt("Parameter of line (latency)");
         if (parameter === null || parameter.trim() === "") {
             selectedNodes = [];
             return;
         }
 
         createLineBetweenNodes(node1, node2, parameter);
-        selectedNodes = [];  // Reset the array for the next line
+        selectedNodes = [];
     }
 }
 
@@ -169,7 +204,7 @@ function createLineBetweenNodes(node1, node2, parameter) {
     treeArea.appendChild(parameterLabel);
 
     // Track the connection between the nodes
-    connections.push({ node1, node2, line, parameterLabel });
+    connections.push({ node1, node2, line, parameterLabel, parameter: parseFloat(parameter) });
     lines.push({ line, parameterLabel, node1, node2 });  // Store for updating later
 }
 
@@ -211,4 +246,155 @@ function updateLines(movedNode) {
             parameterLabel.style.top = `${midY - 20}px`;  // Keep it above the line
         }
     });
+}
+
+// Dijkstra's algorithm implementation
+function findShortestPath(startNodeName, endNodeName) {
+    const graph = createGraph();
+
+    const distances = {};
+    const previousNodes = {};
+    const priorityQueue = new PriorityQueue();
+
+    // Initialize distances and priority queue
+    for (let node of Object.keys(graph)) {
+        distances[node] = Infinity;
+        previousNodes[node] = null;
+        priorityQueue.enqueue(node, Infinity);
+    }
+    distances[startNodeName] = 0;
+    priorityQueue.enqueue(startNodeName, 0);
+
+    while (!priorityQueue.isEmpty()) {
+        const currentNode = priorityQueue.dequeue().element;
+
+        for (let neighbor in graph[currentNode]) {
+            const distance = graph[currentNode][neighbor];
+            const newDist = distances[currentNode] + distance;
+
+            if (newDist < distances[neighbor]) {
+                distances[neighbor] = newDist;
+                previousNodes[neighbor] = currentNode;
+                priorityQueue.enqueue(neighbor, newDist);
+            }
+        }
+    }
+
+    return constructPath(previousNodes, startNodeName, endNodeName);
+}
+
+// Create graph from connections
+function createGraph() {
+    const graph = {};
+    connections.forEach(({ node1, node2, parameter }) => {
+        const name1 = node1.textContent;
+        const name2 = node2.textContent;
+
+        if (!graph[name1]) graph[name1] = {};
+        if (!graph[name2]) graph[name2] = {};
+
+        graph[name1][name2] = parameter; // Use parameter as weight (latency)
+        graph[name2][name1] = parameter; // Undirected graph
+    });
+    return graph;
+}
+
+// Construct path from end node to start node
+function constructPath(previousNodes, startNodeName, endNodeName) {
+    const path = [];
+    let currentNode = endNodeName;
+
+    while (currentNode) {
+        path.unshift(currentNode);
+        currentNode = previousNodes[currentNode];
+    }
+
+    if (path[0] === startNodeName) {
+        return path; // Valid path found
+    } else {
+        return []; // No valid path found
+    }
+}
+
+// Priority Queue implementation for Dijkstra's algorithm
+class PriorityQueue {
+    constructor() {
+        this.items = [];
+    }
+
+    enqueue(element, priority) {
+        const queueElement = { element, priority };
+        this.items.push(queueElement);
+        this.sort();
+    }
+
+    dequeue() {
+        return this.items.shift();
+    }
+
+    isEmpty() {
+        return this.items.length === 0;
+    }
+
+    sort() {
+        this.items.sort((a, b) => a.priority - b.priority);
+    }
+}
+
+// Handle find path button click
+document.getElementById("find-path-btn").addEventListener("click", function () {
+    const transmitterNode = document.getElementById("transmitter").value.trim();
+    const receiverNode = document.getElementById("receiver").value.trim();
+    const path = findShortestPath(transmitterNode, receiverNode);
+
+    if (path.length > 0) {
+        alert(`Shortest path from ${transmitterNode} to ${receiverNode}: ${path.join(' -> ')}`);
+    } else {
+        alert(`No path found between ${transmitterNode} and ${receiverNode}.`);
+    }
+});
+
+// Functions to set transmitter and receiver nodes
+function setTransmitter() {
+    const transmitterNames = document.getElementById("transmitter").value.split(",").map(name => name.trim());
+    let notFound = [];
+
+    transmitterNames.forEach(name => {
+        const node = nodesInTree.find(n => n === name);
+        if (node) {
+            const nodeElement = [...treeArea.children].find(el => el.textContent === name);
+            if (nodeElement) {
+                nodeElement.classList.add("transmitter");
+                alert(`${name} set as transmitter`);
+            }
+        } else {
+            notFound.push(name);
+        }
+    });
+
+    if (notFound.length > 0) {
+        alert(`Nodes not found in the tree: ${notFound.join(", ")}`);
+    }
+}
+
+function setReceiver() {
+    const receiverNames = document.getElementById("receiver").value.split(",").map(name => name.trim());
+    let notFound = [];
+
+    receiverNames.forEach(name => {
+        const node = nodesInTree.find(n => n === name);
+        if (node) {
+            const nodeElement = [...treeArea.children].find(el => el.textContent === name);
+            if (nodeElement) {
+                nodeElement.classList.add("receiver");
+                alert(`${name} set as receiver`);
+            }
+        } else {
+            notFound.push(name);
+        }
+    });
+
+    if (notFound.length > 0) {
+        alert(`Nodes not found in the tree: ${notFound.join(", ")}`);
+    }
 }

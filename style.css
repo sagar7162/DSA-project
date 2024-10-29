@@ -1,86 +1,81 @@
-body {
-    font-family: Arial, sans-serif;
-}
-
-.container {
-    display: flex;
-    height: 100vh;
-}
-
-/* Side panel for draggable items */
-.side-panel {
-    width: 20%;
-    background-color: #f4f4f4;
-    padding: 20px;
-    box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
-}
-
-.draggable {
-    padding: 10px;
-    margin-bottom: 10px;
-    background-color: #ddd;
-    cursor: grab;
-    text-align: center;
-    
-}
-
-.draggable:active {
-    cursor: grabbing;
-}
-
-.tree-area {
-    width: 80%;
-    background-color: #ffffff;
+#tree-area {
     position: relative;
-    padding: 20px;
-    border: 1px solid #ccc;
-    overflow: auto;
-}
-
-.tree-area h3 {
-    text-align: center;
-    color: #333;
+    width: 100%; /* Make sure it can expand fully */
+    height: 600px; /* Set a height as needed */
+    border: 1px solid #ccc; /* Add a border for visibility */
+    overflow: hidden; /* Hide overflow to prevent scrollbars */
 }
 
 .node-in-tree {
     position: absolute;
-    width: 40px;
-    height: 40px;
-    background-color: lightblue;
-    border-radius: 50%;
-    text-align: center;
-    line-height: 40px;
-    font-size: 14px;
+    width: 40px; /* Width of nodes */
+    height: 40px; /* Height of nodes */
+    background-color: #4CAF50; /* Node color */
+    border-radius: 20px; /* Circular nodes */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
     cursor: pointer;
+}
+
+.line-in-tree {
+    position: absolute;
+    height: 2px; /* Set line thickness */
+    background-color: #000; /* Line color */
+    transform-origin: 0 0; /* Set the origin for rotation */
+}
+
+.val-in-line {
+    position: absolute;
+    color: black;
+    font-weight: bold;
+}
+
+
+.node-in-tree {
+    position: absolute;
+    width: 60px;
+    height: 30px;
+    background-color: lightblue;
+    border: 1px solid #000;
+    text-align: center;
+    line-height: 30px;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 2;
 }
 
 .line-in-tree {
     position: absolute;
     height: 2px;
     background-color: black;
-    transform-origin: 0 0; /* Keep the rotation anchored at the start of the line */
-}
-
-.node-in-tree:hover {
-    background-color: rgb(31, 68, 81); /* Change the background color */
-    transform: scale(1.2); /* Slightly enlarge the node on hover */
+    z-index: 1;
 }
 
 .val-in-line {
-    color: black;
-    background-color: white;
-    padding: 2px 5px;
-    border: 1px solid black;
-    border-radius: 5px;
-    font-size: 12px;
-    text-align: center;
-    pointer-events: none; /* Prevent interaction with the parameter */
+    position: absolute;
+    color: red;
+    font-weight: bold;
+    font-size: 18px;
+    z-index: 3;
 }
 
-#treeArea {
-    position: relative;
-    width: 800px;
-    height: 600px;
-    background-color: lightgray;
-    border: 2px solid black;
+.transmitter {
+    background-color: lightgreen; /* Change color for transmitter */
 }
+
+.receiver {
+    background-color: lightcoral; /* Change color for receiver */
+}
+
+/* Additional styles for inputs and buttons */
+input[type="text"] {
+    margin: 5px 0;
+}
+
+button {
+    margin: 5px 10px;
+}
+
