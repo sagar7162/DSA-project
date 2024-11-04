@@ -1,4 +1,3 @@
-// Store load factors for all edges in memory
 const loadFactors = new Map();
 
 // Function to find the shortest path and update load factors
@@ -38,10 +37,41 @@ function findShortestPath(startNodeName, endNodeName) {
 
     // Construct and update the path
     const path = constructPath(previousNodes, startNodeName, endNodeName);
+    if (path.length === 0) {
+        console.error("No valid path found.");
+        return [];
+    }
+
     updateLoadFactors(path);
+    updateConnectionParameters(path); // Update UI for connection parameters
+
     return path;
 }
 
+function updateConnectionParameters(path) {
+    path.forEach((node, index) => {
+        if (index < path.length - 1) {
+            const nextNode = path[index + 1];
+            const connection = connections.find(conn => 
+                (conn.node1.textContent === node && conn.node2.textContent === nextNode) ||
+                (conn.node1.textContent === nextNode && conn.node2.textContent === node)
+            );
+
+            if (connection) {
+                const baseDistance = connection.parameter; // Original parameter
+                const loadFactor = getLoad(node, nextNode);
+                const dynamicWeight = getDynamicWeight(baseDistance, loadFactor);
+
+                // Update parameter label to show original and dynamic weights
+                connection.parameterLabel.innerHTML = `${baseDistance} <span style="color: green;">(${dynamicWeight.toFixed(2)})</span>`;
+            } else {
+                console.warn(`Connection not found for nodes: ${node}, ${nextNode}`);
+            }
+        }
+    });
+}
+
+// Calculate dynamic weight based on load and distance
 // Calculate dynamic weight based on load and distance
 function getDynamicWeight(baseDistance, loadFactor) {
     const loadWeight = 1 + loadFactor; // Adjust the load factor as needed
@@ -54,6 +84,7 @@ function getLoad(node1, node2) {
     return loadFactors.get(key) || 0; // Default to 0 if not set
 }
 
+// Update the load factors of edges in the path
 // Update the load factors of edges in the path
 function updateLoadFactors(path) {
     const increment = 0.1; // Fixed amount to increment load factor
