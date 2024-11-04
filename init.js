@@ -1,5 +1,3 @@
-
-
 const treeArea = document.getElementById("tree-area");
 
 let draggedItem = null;

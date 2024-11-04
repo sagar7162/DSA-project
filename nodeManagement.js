@@ -13,13 +13,13 @@ function editNodeValue(node) {
 }
 
 // Function to change the parameter of a line
-function editLineParameter(lineData) {
-    const currentParameter = lineData.parameterLabel.innerText;
-    const newParameter = prompt("Enter new parameter for this line", currentParameter);
-    if (newParameter !== null && newParameter.trim() !== "") {
-        lineData.parameterLabel.innerText = newParameter; // Update the displayed parameter
-    }
-}
+// function editLineParameter(lineData) {
+//     const currentParameter = lineData.parameterLabel.innerText;
+//     const newParameter = prompt("Enter new parameter for this line", currentParameter);
+//     if (newParameter !== null && newParameter.trim() !== "") {
+//         lineData.parameterLabel.innerText = newParameter; // Update the displayed parameter
+//     }
+// }
 
 // Function to handle double-click for deleting a node
 function handleNodeDoubleClick(node) {

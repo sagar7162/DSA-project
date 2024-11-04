@@ -2,6 +2,9 @@
 function findShortestPath(startNodeName, endNodeName) {
     const graph = createGraph();
 
+    console.log("findShortestPath.js");
+
+
     const distances = {};
     const previousNodes = {};
     const priorityQueue = new PriorityQueue();
@@ -19,8 +22,11 @@ function findShortestPath(startNodeName, endNodeName) {
         const currentNode = priorityQueue.dequeue().element;
 
         for (let neighbor in graph[currentNode]) {
-            const distance = graph[currentNode][neighbor];
-            const newDist = distances[currentNode] + distance;
+            const baseDistance = graph[currentNode][neighbor];
+            const loadFactor = getLoad(currentNode, neighbor);
+            const dynamicWeight = getDynamicWeight(baseDistance, loadFactor);
+            console.log(`Dynamic weight from ${currentNode} to ${neighbor}: ${dynamicWeight}`);
+            const newDist = distances[currentNode] + dynamicWeight;
 
             if (newDist < distances[neighbor]) {
                 distances[neighbor] = newDist;
@@ -30,11 +36,39 @@ function findShortestPath(startNodeName, endNodeName) {
         }
     }
 
-    return constructPath(previousNodes, startNodeName, endNodeName);
+    // Construct and update the path
+    const path = constructPath(previousNodes, startNodeName, endNodeName);
+    updateLoadFactors(path);
+    
+    // Update dynamic weights in the UI for each connection in the path
+    path.forEach((node, index) => {
+        if (index < path.length - 1) {
+            const nextNode = path[index + 1];
+            const connection = connections.find(conn => 
+                (conn.node1.textContent === node && conn.node2.textContent === nextNode) ||
+                (conn.node1.textContent === nextNode && conn.node2.textContent === node)
+            );
+
+            if (connection) {
+                const baseDistance = connection.parameter; // Original parameter
+                const loadFactor = getLoad(node, nextNode);
+                const dynamicWeight = getDynamicWeight(baseDistance, loadFactor);
+
+                // Update parameter label to show original and dynamic weights
+                connection.parameterLabel.innerHTML = `${baseDistance} <span style="color: green;">(${dynamicWeight.toFixed(2)})</span>`;
+            }
+        }
+    });
+
+    return path;
 }
+
 
 // Create graph from connections
 function createGraph() {
+
+    console.log("createGraph.js");
+    
     const graph = {};
     connections.forEach(({ node1, node2, parameter }) => {
         const name1 = node1.textContent;
@@ -51,6 +85,9 @@ function createGraph() {
 
 // Construct path from end node to start node
 function constructPath(previousNodes, startNodeName, endNodeName) {
+
+    console.log("constructPath.js");
+
     const path = [];
     let currentNode = endNodeName;
 
