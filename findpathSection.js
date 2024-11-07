@@ -3,6 +3,23 @@ document.getElementById("find-path-btn").addEventListener("click", function () {
     
     const transmitterNode = document.getElementById("transmitter").value.trim();
     const receiverNode = document.getElementById("receiver").value.trim();
+
+    
+    const graph = createGraph();
+    const missingNodes = [];
+    
+    if (!graph[transmitterNode]) {
+        missingNodes.push(transmitterNode);
+    }
+    if (!graph[receiverNode]) {
+        missingNodes.push(receiverNode);
+    }
+
+ 
+    if (missingNodes.length > 0) {
+        alert(`Node(s) not found: ${missingNodes.join(', ')}`);
+        return;
+    }
     const path = findShortestPath(transmitterNode, receiverNode);
 
     if (path.length > 0) {
