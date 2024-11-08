@@ -11,7 +11,7 @@
         <!-- Side panel for draggable items -->
         <div class="side-panel">
             <h3>Items to Drag</h3>
-            <button class="draggable node" draggable="true" data-type="node" data-value="x">Node </button>
+            <button class="draggable node" draggable="true" data-type="node" data-value="x">Node</button>
         </div>
         
         <!-- Main area for tree construction -->
@@ -19,16 +19,13 @@
             <h3>Constructed Tree</h3>
         </div>
 
-        <!-- New Section for Transmitter/Receiver and Pathfinding -->
+        <!-- Section for setting Transmitters and initiating routing -->
         <div class="controls">
-            <h3>Set Transmitter and Receiver</h3>
-            <label for="transmitter">Transmitter:</label>
-            <input type="text" id="transmitter" placeholder="Enter transmitter node">
+            <h3>Set Transmitters</h3>
+            <label for="transmitters">Transmitters:</label>
+            <input type="text" id="transmitters" placeholder="Enter transmitter nodes separated by commas">
             <br>
-            <label for="receiver">Receiver:</label>
-            <input type="text" id="receiver" placeholder="Enter receiver node">
-            <br>
-            <button id="find-path-btn">Find Shortest Path</button>
+            <button id="initiate-routing-btn">Initiate Routing</button>
             <div id="path-result"></div>
         </div>
     </div>
