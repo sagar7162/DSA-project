@@ -8,15 +8,33 @@
 </head>
 <body>
     <div class="container">
-        <!-- Side panel for draggable items -->
-        <div class="side-panel">
-            <h3>Items to Drag</h3>
-            <button class="draggable node" draggable="true" data-type="node" data-value="x">Node </button>
+        <div style="display: flex; flex-direction: column;">
+            <!-- Side panel for draggable items -->
+            <div class="side-panel">
+                <h3>Items to Drag</h3> 
+                <button class="draggable node" draggable="true" data-type="node" data-value="x">Node </button>
+            </div>
+
+            <div style="display: flex; justify-content: center; align-items: center;">
+                <h1>OR</h1>
+            </div>
+
+            <!-- Section for tree input -->
+            <div id="tree-inputs">
+                <h1></h1>
+                <label>Number of Nodes (n):</label>
+                <input type="number" id="node-count" min="1">
+                <label>Number of Links (k):</label>
+                <input type="number" id="link-count" min="1">
+                <button onclick="createTreeFromInput()">Generate Tree</button>
+                
+                <div id="link-input-section"></div>
+            </div>
         </div>
-        
+
         <!-- Main area for tree construction -->
         <div class="tree-area" id="tree-area">
-            <h3>Constructed Tree</h3>
+            <h3 style="font-size: 50px;">Constructed Tree</h3>
         </div>
 
         <!-- New Section for Transmitter/Receiver and Pathfinding -->
@@ -38,5 +56,7 @@
     <script src="networktrafficshowing.js"></script>
     <script src="loadBalancingPathfinding.js"></script>
     <script src="findpathSection.js"></script>
+    <script src="autoTreeCreation.js"></script>
+
 </body>
 </html>

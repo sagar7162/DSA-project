@@ -72,7 +72,6 @@ function updateConnectionParameters(path) {
 }
 
 // Calculate dynamic weight based on load and distance
-// Calculate dynamic weight based on load and distance
 function getDynamicWeight(baseDistance, loadFactor) {
     const loadWeight = 1 + loadFactor; // Adjust the load factor as needed
     return baseDistance * loadWeight;

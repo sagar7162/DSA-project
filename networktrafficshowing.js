@@ -21,6 +21,14 @@ function handleNodeClick(node) {
 
 // Create a line between two nodes
 function createLineBetweenNodes(node1, node2, parameter) {
+    if (!node1) {
+        console.error("nodes are missing :1");
+        return; // Exit the function if nodes are missing
+    }
+    if (!node2) {
+        console.error("nodes are missing:2");
+        return; // Exit the function if nodes are missing
+    }
     if (isNodesConnected(node1, node2)) {
         alert('Nodes are already connected!');
         return;
@@ -31,11 +39,13 @@ function createLineBetweenNodes(node1, node2, parameter) {
 
     const node1Rect = node1.getBoundingClientRect();
     const node2Rect = node2.getBoundingClientRect();
-
-    const x1 = node1Rect.left + node1Rect.width / 2 - treeArea.offsetLeft;
-    const y1 = node1Rect.top + node1Rect.height / 2 - treeArea.offsetTop;
-    const x2 = node2Rect.left + node2Rect.width / 2 - treeArea.offsetLeft;
-    const y2 = node2Rect.top + node2Rect.height / 2 - treeArea.offsetTop;
+    // Get the tree area position relative to the page
+    const treeRect = treeArea.getBoundingClientRect();
+    // Calculate the positions relative to the treeArea
+    const x1 = node1Rect.left - treeRect.left + node1Rect.width / 2;
+    const y1 = node1Rect.top - treeRect.top + node1Rect.height / 2;
+    const x2 = node2Rect.left - treeRect.left + node2Rect.width / 2;
+    const y2 = node2Rect.top - treeRect.top + node2Rect.height / 2;
 
     const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
     const angle = Math.atan2(y2 - y1, x2 - x1) * (180 / Math.PI);
@@ -79,35 +89,42 @@ function isNodesConnected(node1, node2) {
 
 // Update lines when nodes are moved
 function updateLines(movedNode) {
-    connections.forEach(({ line, parameterLabel, node1, node2 }) => {
+    connections.forEach(({ line, parameterLabel, node1, node2, parameter }) => {
         if (node1 === movedNode || node2 === movedNode) {
+            // Get the updated positions of the nodes after moving
             const node1Rect = node1.getBoundingClientRect();
             const node2Rect = node2.getBoundingClientRect();
 
-            const x1 = node1Rect.left + node1Rect.width / 2 - treeArea.offsetLeft;
-            const y1 = node1Rect.top + node1Rect.height / 2 - treeArea.offsetTop;
-            const x2 = node2Rect.left + node2Rect.width / 2 - treeArea.offsetLeft;
-            const y2 = node2Rect.top + node2Rect.height / 2 - treeArea.offsetTop;
+            // Get the position of the tree area
+            const treeRect = treeArea.getBoundingClientRect();
 
+            // Calculate the center positions of both nodes relative to the treeArea
+            const x1 = node1Rect.left - treeRect.left + node1Rect.width / 2;
+            const y1 = node1Rect.top - treeRect.top + node1Rect.height / 2;
+            const x2 = node2Rect.left - treeRect.left + node2Rect.width / 2;
+            const y2 = node2Rect.top - treeRect.top + node2Rect.height / 2;
+
+            // Calculate the length and angle between the nodes
             const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
             const angle = Math.atan2(y2 - y1, x2 - x1) * (180 / Math.PI);
 
+            // Update the line styles to reflect the new positions
             line.style.width = `${length}px`;
             line.style.transform = `rotate(${angle}deg)`;
             line.style.left = `${x1}px`;
             line.style.top = `${y1}px`;
 
-            // Use updated dynamic weight
-            const baseDistance = parseFloat(parameterLabel.innerText.split(" ")[0]);
+            // Recalculate dynamic weight and update the label
             const loadFactor = getLoad(node1.textContent, node2.textContent); // From network file
-            const dynamicWeight = getDynamicWeight(baseDistance, loadFactor); // From network file
+            const dynamicWeight = getDynamicWeight(parameter, loadFactor); // From network file
+            parameterLabel.innerHTML = `${parameter} <span style="color: green;">(${dynamicWeight.toFixed(2)})</span>`;
 
-            parameterLabel.innerHTML = `${baseDistance} <span style="color: green;">(${dynamicWeight.toFixed(2)})</span>`;
-
+            // Position the parameter label at the midpoint between the nodes
             const midX = (x1 + x2) / 2;
             const midY = (y1 + y2) / 2;
-            parameterLabel.style.left = `${midX}px`;
-            parameterLabel.style.top = `${midY - 20}px`;
+            parameterLabel.style.left = `${midX - parameterLabel.offsetWidth / 2}px`; // Adjusted to center the label
+            parameterLabel.style.top = `${midY - 20}px`; // Adjusted for spacing above the line
         }
     });
 }
+
