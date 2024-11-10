@@ -1,150 +1,84 @@
-// Function to handle node clicks with improved error handling
+// Function to handle node clicks
 function handleNodeClick(node) {
-    if (!node) {
-        console.error("Invalid node clicked");
-        return;
-    }
-
-    if (selectedNodes.includes(node)) {
-        console.log("Node already selected");
-        return;
-    }
+    if (selectedNodes.includes(node)) return;
 
     selectedNodes.push(node);
-    console.log("Selected nodes:", selectedNodes.length);
 
     if (selectedNodes.length === 2) {
         const node1 = selectedNodes[0];
         const node2 = selectedNodes[1];
 
-        // Validate nodes before proceeding
-        if (!node1 || !node2) {
-            console.error("Invalid node selection");
+        let parameter = prompt("Parameter of line (latency)");
+        if (parameter === null || parameter.trim() === "") {
             selectedNodes = [];
             return;
         }
 
-        let latency = prompt("Parameter of line (latency)");
-        if (latency === null || latency.trim() === "" || isNaN(parseFloat(latency))) {
-            console.log("Invalid latency input");
-            selectedNodes = [];
-            return;
-        }
-
-        let bandwidth = prompt("Parameter of line (bandwidth)");
-        if (bandwidth === null || bandwidth.trim() === "" || isNaN(parseFloat(bandwidth))) {
-            console.log("Invalid bandwidth input");
-            selectedNodes = [];
-            return;
-        }
-
-        createLineBetweenNodes(node1, node2, latency, bandwidth);
+        createLineBetweenNodes(node1, node2, parameter);
         selectedNodes = [];
     }
 }
 
-// Create a line between two nodes with improved positioning and error handling
-function createLineBetweenNodes(node1, node2, latency, bandwidth) {
-    // Validate inputs
-    if (!node1 || !node2) {
-        console.error("Invalid nodes provided:", { node1, node2 });
-        return;
+// Create a line between two nodes
+function createLineBetweenNodes(node1, node2, parameter) {
+    if (!node1) {
+        console.error("nodes are missing :1");
+        return; // Exit the function if nodes are missing
     }
-
-    if (!treeArea) {
-        console.error("Tree area not found");
-        return;
+    if (!node2) {
+        console.error("nodes are missing:2");
+        return; // Exit the function if nodes are missing
     }
-
     if (isNodesConnected(node1, node2)) {
         alert('Nodes are already connected!');
         return;
     }
 
-    try {
-        // Create line element
-        const line = document.createElement("div");
-        line.classList.add("line-in-tree");
+    const line = document.createElement("div");
+    line.classList.add("line-in-tree");
 
-        // Get positions with error checking
-        const node1Rect = node1.getBoundingClientRect();
-        const node2Rect = node2.getBoundingClientRect();
-        const treeRect = treeArea.getBoundingClientRect();
+    const node1Rect = node1.getBoundingClientRect();
+    const node2Rect = node2.getBoundingClientRect();
+    // Get the tree area position relative to the page
+    const treeRect = treeArea.getBoundingClientRect();
+    // Calculate the positions relative to the treeArea
+    const x1 = node1Rect.left - treeRect.left + node1Rect.width / 2;
+    const y1 = node1Rect.top - treeRect.top + node1Rect.height / 2;
+    const x2 = node2Rect.left - treeRect.left + node2Rect.width / 2;
+    const y2 = node2Rect.top - treeRect.top + node2Rect.height / 2;
 
-        if (!node1Rect || !node2Rect || !treeRect) {
-            console.error("Failed to get element boundaries");
-            return;
-        }
+    const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+    const angle = Math.atan2(y2 - y1, x2 - x1) * (180 / Math.PI);
 
-        // Calculate positions relative to tree area
-        const x1 = node1Rect.left - treeRect.left + (node1Rect.width / 2);
-        const y1 = node1Rect.top - treeRect.top + (node1Rect.height / 2);
-        const x2 = node2Rect.left - treeRect.left + (node2Rect.width / 2);
-        const y2 = node2Rect.top - treeRect.top + (node2Rect.height / 2);
+    line.style.width = `${length}px`;
+    line.style.transform = `rotate(${angle}deg)`;
+    line.style.left = `${x1}px`;
+    line.style.top = `${y1}px`;
 
-        // Calculate line properties
-        const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-        const angle = Math.atan2(y2 - y1, x2 - x1) * (180 / Math.PI);
+    treeArea.appendChild(line);
 
-        // Apply styles with error checking
-        if (isNaN(length) || isNaN(angle)) {
-            console.error("Invalid line calculations:", { length, angle });
-            return;
-        }
+    const parameterLabel = document.createElement("div");
+    parameterLabel.classList.add("val-in-line");
 
-        // Set line position and properties
-        line.style.width = `${length}px`;
-        line.style.transform = `rotate(${angle}deg)`;
-        line.style.left = `${x1}px`;
-        line.style.top = `${y1}px`;
-        line.style.transformOrigin = "0 0";  // Add transform origin
-        line.style.position = "absolute";    // Ensure absolute positioning
+    // Use dynamic weight from the other JS file
+    const baseDistance = parseFloat(parameter);
+    const loadFactor = getLoad(node1.textContent, node2.textContent); // From network file
+    const dynamicWeight = getDynamicWeight(baseDistance, loadFactor); // From network file
 
-        // Create and position parameter label
-        const parameterLabel = document.createElement("div");
-        parameterLabel.classList.add("val-in-line");
+    parameterLabel.innerHTML = `${parameter} <span style="color: green;">(${dynamicWeight.toFixed(2)})</span>`;
 
-        // Calculate dynamic weights
-        const baseLatency = parseFloat(latency);
-        const baseBandwidth = parseFloat(bandwidth);
-        const loadFactor = getLoad(node1.textContent, node2.textContent);
-        const dynamicLatency = getDynamicWeight(baseLatency, loadFactor);
-        const dynamicBandwidth = getDynamicWeight(baseBandwidth, loadFactor);
+    const midX = (x1 + x2) / 2;
+    const midY = (y1 + y2) / 2;
+    parameterLabel.style.position = 'absolute';
+    parameterLabel.style.left = `${midX}px`;
+    parameterLabel.style.top = `${midY - 20}px`;
 
-        parameterLabel.innerHTML = `
-            <div>L: ${latency} <span style="color: green;">(${dynamicLatency.toFixed(2)})</span></div>
-            <div>B: ${bandwidth} <span style="color: blue;">(${dynamicBandwidth.toFixed(2)})</span></div>
-        `;
+    treeArea.appendChild(parameterLabel);
 
-        // Position the label
-        const midX = (x1 + x2) / 2;
-        const midY = (y1 + y2) / 2;
-        parameterLabel.style.position = 'absolute';
-        parameterLabel.style.left = `${midX}px`;
-        parameterLabel.style.top = `${midY - 30}px`;
-        parameterLabel.style.transform = 'translate(-50%, -50%)'; // Center the label
-
-        // Append elements to tree area
-        treeArea.appendChild(line);
-        treeArea.appendChild(parameterLabel);
-
-        // Store connection information
-        connections.push({ 
-            node1, 
-            node2, 
-            line, 
-            parameterLabel, 
-            latency: baseLatency,
-            bandwidth: baseBandwidth
-        });
-        
-        lines.push({ line, parameterLabel, node1, node2 });
-
-        console.log("Line created successfully");
-    } catch (error) {
-        console.error("Error creating line:", error);
-    }
+    connections.push({ node1, node2, line, parameterLabel, parameter: baseDistance });
+    lines.push({ line, parameterLabel, node1, node2 });
 }
+
 // Check if nodes are connected
 function isNodesConnected(node1, node2) {
     return connections.some(connection =>
@@ -152,3 +86,45 @@ function isNodesConnected(node1, node2) {
         (connection.node1 === node2 && connection.node2 === node1)
     );
 }
+
+// Update lines when nodes are moved
+function updateLines(movedNode) {
+    connections.forEach(({ line, parameterLabel, node1, node2, parameter }) => {
+        if (node1 === movedNode || node2 === movedNode) {
+            // Get the updated positions of the nodes after moving
+            const node1Rect = node1.getBoundingClientRect();
+            const node2Rect = node2.getBoundingClientRect();
+
+            // Get the position of the tree area
+            const treeRect = treeArea.getBoundingClientRect();
+
+            // Calculate the center positions of both nodes relative to the treeArea
+            const x1 = node1Rect.left - treeRect.left + node1Rect.width / 2;
+            const y1 = node1Rect.top - treeRect.top + node1Rect.height / 2;
+            const x2 = node2Rect.left - treeRect.left + node2Rect.width / 2;
+            const y2 = node2Rect.top - treeRect.top + node2Rect.height / 2;
+
+            // Calculate the length and angle between the nodes
+            const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+            const angle = Math.atan2(y2 - y1, x2 - x1) * (180 / Math.PI);
+
+            // Update the line styles to reflect the new positions
+            line.style.width = `${length}px`;
+            line.style.transform = `rotate(${angle}deg)`;
+            line.style.left = `${x1}px`;
+            line.style.top = `${y1}px`;
+
+            // Recalculate dynamic weight and update the label
+            const loadFactor = getLoad(node1.textContent, node2.textContent); // From network file
+            const dynamicWeight = getDynamicWeight(parameter, loadFactor); // From network file
+            parameterLabel.innerHTML = `${parameter} <span style="color: green;">(${dynamicWeight.toFixed(2)})</span>`;
+
+            // Position the parameter label at the midpoint between the nodes
+            const midX = (x1 + x2) / 2;
+            const midY = (y1 + y2) / 2;
+            parameterLabel.style.left = `${midX - parameterLabel.offsetWidth / 2}px`; // Adjusted to center the label
+            parameterLabel.style.top = `${midY - 20}px`; // Adjusted for spacing above the line
+        }
+    });
+}
+

@@ -5,7 +5,7 @@ let autoLinks = [];
 function createTreeFromInput() {
     const nodeCount = parseInt(document.getElementById("node-count").value);
     const linkCount = parseInt(document.getElementById("link-count").value);
-    nodesInTree= Array.from({ length: nodeCount }, (_, i) => `${i+1}`);
+    nodesInTree = Array.from({ length: nodeCount }, (_, i) => `${i+1}`);
     
     // Clear and create link inputs
     const linkInputSection = document.getElementById("link-input-section");
@@ -69,10 +69,8 @@ function generateTreeFromInputs() {
             y = Math.floor(Math.random() * (treeHeight - 100)); // Subtract margin to avoid edge
         } while (checkOverlap(x, y)); // Re-generate if overlap is detected
         //Promise(resolve => setTimeout(resolve, ms));
-        
         createNode(x, y, nodeName);
     });
-
 
     // Create connections between nodes
     linkInputs.forEach(linkInput => {
@@ -99,3 +97,5 @@ function generateTreeFromInputs() {
         }
     });
 }
+
+

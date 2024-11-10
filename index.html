@@ -38,8 +38,8 @@
         </div>
 
         <!-- New Section for Transmitter/Receiver and Pathfinding -->
-        <div class="controls">
-            <div>
+         <div class="flex">
+            <div class="controls" style="margin-bottom: 30px;">
                 <h3>Set Transmitter and Receiver</h3>
                 <label for="transmitter">Transmitter:</label>
                 <input type="text" id="transmitter" placeholder="Enter transmitter node">
@@ -52,7 +52,7 @@
             </div>
 
             <div>
-                <div class="find-nearest-transmitter">
+                <div class="find-nearest-transmitter" >
                     <h3>Set Transmitters</h3>
                     <label for="transmitters">Transmitters:</label>
                     <input type="text" id="transmitters" placeholder="Enter transmitter nodes separated by commas">
@@ -61,9 +61,8 @@
                     <div id="path-result"></div>
                 </div>
             </div>
-        </div>
-
     </div>
+</div>
 
     <script src="init.js"></script>
     <script src="nodeManagement.js"></script>

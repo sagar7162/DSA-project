@@ -9,7 +9,7 @@ document.getElementById("initiate-routing-btn").addEventListener("click", functi
     // Step 2: Check if all transmitters are in the tree
     const notFoundTransmitters = transmitterNames.filter(name => !nodesInTree.includes(name));
     if (notFoundTransmitters.length > 0) {
-        alert(`Transmitters not found in the tree: ${notFoundTransmitters.join(", ")}`);
+        alert('Transmitters not found in the tree: ${notFoundTransmitters.join(", ")}');
         console.log("Transmitters not found:", notFoundTransmitters);
         return;
     }
@@ -43,7 +43,7 @@ function findNearestTransmitter(receiver, transmitters) {
     let nearestTransmitter = null;
 
     transmitters.forEach(transmitter => {
-        const path = findShortestPath(transmitter, receiver);
+        const path = findShortestPath(transmitter, receiver,false);
         if (path && path.length > 0 && (!shortestPath || path.length < shortestPath.length)) {
             shortestPath = path;
             nearestTransmitter = transmitter;
