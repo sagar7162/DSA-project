@@ -5,7 +5,7 @@ let autoLinks = [];
 function createTreeFromInput() {
     const nodeCount = parseInt(document.getElementById("node-count").value);
     const linkCount = parseInt(document.getElementById("link-count").value);
-    nodesInTree= Array.from(`{ length: nodeCount }, (_, i) => ${i+1}`);
+    nodesInTree= Array.from({ length: nodeCount }, (_, i) => `${i+1}`);
     
     // Clear and create link inputs
     const linkInputSection = document.getElementById("link-input-section");
