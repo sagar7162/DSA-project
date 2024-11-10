@@ -1,81 +1,301 @@
-#tree-area {
+    #tree-area {
+        position: relative;
+        width: 100%; /* Make sure it can expand fully */
+        height: 100%; /* Set a height as needed */
+        border: 1px solid #ccc; /* Add a border for visibility */
+        overflow: hidden; /* Hide overflow to prevent scrollbars */
+    }
+
+    .node-in-tree {
+        position: absolute;
+        width: 40px; /* Width of nodes */
+        height: 40px; /* Height of nodes */
+        background-color: #4CAF50; /* Node color */
+        border-radius: 20px; /* Circular nodes */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .line-in-tree {
+        position: absolute;
+        height: 2px; /* Set line thickness */
+        background-color: #000; /* Line color */
+        transform-origin: 0 0; /* Set the origin for rotation */
+    }
+
+    .val-in-line {
+        position: absolute;
+        color: black;
+        font-weight: bold;
+    }
+
+    .tree-inputs{
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .node-in-tree {
+        position: absolute;
+        width: 60px;
+        height: 30px;
+        background-color: lightblue;
+        border: 1px solid #000;
+        text-align: center;
+        line-height: 30px;
+        border-radius: 5px;
+        cursor: pointer;
+        z-index: 2;
+    }
+
+    .line-in-tree {
+        position: absolute;
+        height: 2px;
+        background-color: black;
+        z-index: 1;
+    }
+
+    .val-in-line {
+        position: absolute;
+        color: red;
+        font-weight: bold;
+        font-size: 18px;
+        z-index: 3;
+    }
+
+    .transmitter {
+        background-color: lightgreen; /* Change color for transmitter */
+    }
+
+    .receiver {
+        background-color: lightcoral; /* Change color for receiver */
+    }
+
+    /* Additional styles for inputs and buttons */
+    input[type="text"] {
+        margin: 5px 0;
+    }
+
+    button {
+        margin: 5px 10px;
+    }
+
+    /* Full-page container layout */
+    .container {
+        display: flex;
+        gap: 20px;
+        height: 100vh; /* Full height of the viewport */
+        padding: 20px;
+    }
+
+    /* Side panel for draggable items */
+    .side-panel {
+        text-align: center;
+        height: 125px;
+        width: 200px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .side-panel h3 {
+        margin-bottom: 10px;
+        font-size: 18px;
+        color: #333;
+    }
+
+    .draggable {
+        display: inline-block;
+        padding: 8px 12px;
+        font-size: 16px;
+        color: white;
+        background-color: #4CAF50;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .draggable:active {
+        opacity: 0.8;
+    }
+
+
+    /* Main area for tree construction */
+    .tree-area {
+        flex-grow: 1;
+        position: relative;
+        height: 100%; /* Full height of container */
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        overflow: hidden;
+        background-color: #f0f8ff;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .tree-area h3 {
+        
+        text-align: center;
+        margin: 10px 0;
+        font-size: 18px;
+        color: #333;
+    }
+
+    /* Node styling in the tree area */
+    .node-in-tree {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        background-color: #4CAF50;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        cursor: pointer;
+        z-index: 2;
+    }
+
+    /* Styling lines between nodes */
+    .line-in-tree {
+        position: absolute;
+        height: 2px;
+        background-color: black;
+        z-index: 1;
+    }
+
+    .val-in-line {
+        color: red;
+        font-weight: bold;
+        font-size: 18px;
+        z-index: 3;
+    }
+
+    /* Transmitter and Receiver nodes */
+    .transmitter {
+        background-color: lightgreen;
+    }
+
+    .receiver {
+        background-color: lightcoral;
+    }
+
+    /* Controls section for transmitter and receiver input */
+    .controls {
+        height: 300px;
+        width: 200px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .controls h3 {
+        font-size: 18px;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    input[type="text"] {
+        width: calc(100% - 20px);
+        padding: 5px;
+        margin: 5px 0;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        box-sizing: border-box;
+    }
+
+    button {
+        display: block;
+        padding: 8px 12px;
+        font-size: 16px;
+        color: white;
+        background-color: #007bff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        width: calc(100% - 20px);
+        margin: 5px 0;
+    }
+
+    button:active {
+        opacity: 0.9;
+    }
+
+    /* Path result styling */
+    #path-result {
+        margin-top: 10px;
+        font-size: 16px;
+        color: #333;
+    }
+
+    /* Reset default margin and padding for full window coverage */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    #tree-inputs{
+        padding-top: 10px;
+        height: full;
+        width: 200px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+
+    .link-input{
+        padding: 20px;
+        padding-left: 0px;
+        font-size: medium;
+    }
+
+    .link-node1{
+        margin: 10px;
+        margin-left: 0px
+    }
+
+    .link-node2{
+        margin: 10px;
+        margin-left: 0px
+    }
+/* Ensure tree area has correct positioning context */
+.tree-area {
     position: relative;
-    width: 100%; /* Make sure it can expand fully */
-    height: 600px; /* Set a height as needed */
-    border: 1px solid #ccc; /* Add a border for visibility */
-    overflow: hidden; /* Hide overflow to prevent scrollbars */
+    overflow: visible;
 }
 
-.node-in-tree {
+/* SVG container styling */
+#connections {
     position: absolute;
-    width: 40px; /* Width of nodes */
-    height: 40px; /* Height of nodes */
-    background-color: #4CAF50; /* Node color */
-    border-radius: 20px; /* Circular nodes */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.line-in-tree {
-    position: absolute;
-    height: 2px; /* Set line thickness */
-    background-color: #000; /* Line color */
-    transform-origin: 0 0; /* Set the origin for rotation */
-}
-
-.val-in-line {
-    position: absolute;
-    color: black;
-    font-weight: bold;
-}
-
-
-.node-in-tree {
-    position: absolute;
-    width: 60px;
-    height: 30px;
-    background-color: lightblue;
-    border: 1px solid #000;
-    text-align: center;
-    line-height: 30px;
-    border-radius: 5px;
-    cursor: pointer;
-    z-index: 2;
-}
-
-.line-in-tree {
-    position: absolute;
-    height: 2px;
-    background-color: black;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: visible;
     z-index: 1;
 }
 
-.val-in-line {
-    position: absolute;
-    color: red;
-    font-weight: bold;
-    font-size: 18px;
-    z-index: 3;
+/* Animated path styling */
+.animated-path {
+    stroke: #00ffff;
+    stroke-width: 3;
+    fill: none;
+    pointer-events: none;
 }
 
-.transmitter {
-    background-color: lightgreen; /* Change color for transmitter */
+/* Ensure nodes appear above the SVG lines */
+.node-in-tree {
+    z-index: 2;
+    position: relative;
 }
-
-.receiver {
-    background-color: lightcoral; /* Change color for receiver */
-}
-
-/* Additional styles for inputs and buttons */
-input[type="text"] {
-    margin: 5px 0;
-}
-
-button {
-    margin: 5px 10px;
-}
-
