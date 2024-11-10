@@ -5,27 +5,79 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tree Builder</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            position: relative;
+            margin: 0;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        .glow {
+            animation: glowing 1.5s infinite;
+        }
+
+        @keyframes glowing {
+            0% { stroke: rgba(0, 255, 255, 0.5); }
+            50% { stroke: rgba(0, 255, 255, 1); }
+            100% { stroke: rgba(0, 255, 255, 0.5); }
+        }
+
+        .tree-area {
+            position: relative;
+            z-index: 1; /* Ensure tree area is above SVG */
+        }
+
+        #connections {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Allow clicks to pass through */
+            z-index: 0; /* Ensure SVG is behind other content */
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <!-- Side panel for draggable items -->
-        <div class="side-panel">
-            <h3>Items to Drag</h3>
-            <button class="draggable node" draggable="true" data-type="node" data-value="x">Node</button>
-        </div>
-        
-        <!-- Main area for tree construction -->
-        <div class="tree-area" id="tree-area">
-            <h3>Constructed Tree</h3>
+        <div style="display: flex; flex-direction: column;">
+            <div class="side-panel">
+                <h3>Items to Drag</h3> 
+                <button class="draggable node" draggable="true" data-type="node" data-value="x">Node </button>
+            </div>
+
+            <div style="display: flex; justify-content: center; align-items: center;">
+                <h1>OR</h1>
+            </div>
+
+            <div id="tree-inputs">
+                <h1></h1>
+                <label>Number of Nodes (n):</label>
+                <input type="number" id="node-count" min="1">
+                <label>Number of Links (k):</label>
+                <input type="number" id="link-count" min="1">
+                <button onclick="createTreeFromInput()">Generate Tree</button>
+                
+                <div id="link-input-section"></div>
+            </div>
         </div>
 
-        <!-- Section for setting Transmitters and initiating routing -->
+        
+
+        <div class="tree-area" id="tree-area">
+            <h3 style="font-size: 50px;">Constructed Tree</h3>
+        </div>
+        <svg id="connections" width="100%" height="100%"></svg>
         <div class="controls">
-            <h3>Set Transmitters</h3>
-            <label for="transmitters">Transmitters:</label>
-            <input type="text" id="transmitters" placeholder="Enter transmitter nodes separated by commas">
+            <h3>Set Transmitter and Receiver</h3>
+            <label for="transmitter">Transmitter:</label>
+            <input type="text" id="transmitter" placeholder="Enter transmitter node">
             <br>
-            <button id="initiate-routing-btn">Initiate Routing</button>
+            <label for="receiver">Receiver:</label>
+            <input type="text" id="receiver" placeholder="Enter receiver node">
+            <br>
+            <button id="find-path-btn">Find Shortest Path</button>
             <div id="path-result"></div>
         </div>
     </div>
@@ -33,7 +85,9 @@
     <script src="init.js"></script>
     <script src="nodeManagement.js"></script>
     <script src="networktrafficshowing.js"></script>
-    <script src="loadBalancingPathfinding.js"></script>
+    <script src="loadBalancingPathfinding.js"></script>  njihkmgfgh
     <script src="findpathSection.js"></script>
+    <script src="autoTreeCreation.js"></script>
+
 </body>
 </html>
